@@ -101,21 +101,35 @@ def info():
 #protected endpoint
 @app.get("/protected/profile",description="Welcome stranger! This info is public.",status_code=200)
 def protected_profile(authorization: str | None = Header(default=None)):
+    #if HTTP header not sent return error
     if not authorization:
         return JSONResponse(
             status_code=401,
-            content={"error": "Access token required"}
+            content={"error": "Access token not sent"}
         )
+    #split in two parts: Bearer and everything after that
     parts = authorization.split(" ", 1)
-
+    #check if auth header is in right format: 'Bearer something'
     if len(parts) != 2 or parts[0].lower() != "bearer" or not parts[1].strip():
         return JSONResponse(
             status_code=401,
-            content={"error": "Access token required"}
+            content={"error": "Access token is in bad format"}
         )
 
     token = parts[1].strip()
-
+    #get user who has this token from supabase
+    try:
+        response = supabase.auth.get_user(token)
+    except Exception:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or expired token",
+                
+            )
+    user = response.user
     return {
-        "message": "Access token received"
+        "message": "Token is valid!",
+        "user_id": user.id,
+        "email": user.email,
+        "account-created_at":user.created_at
     }
