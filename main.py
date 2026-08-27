@@ -101,19 +101,17 @@ def info():
 #protected endpoint
 @app.get("/protected/profile",description="Welcome stranger! This info is public.",status_code=200)
 def protected_profile(authorization: str | None = Header(default=None)):
-    #if HTTP header not sent return error
     if not authorization:
         return JSONResponse(
             status_code=401,
-            content={"error": "Access token not sent"}
+            content={"error": "Access token required"}
         )
-    #split in two parts: Bearer and everything after that
     parts = authorization.split(" ", 1)
-    #check if auth header is in right format: 'Bearer something'
+
     if len(parts) != 2 or parts[0].lower() != "bearer" or not parts[1].strip():
         return JSONResponse(
             status_code=401,
-            content={"error": "Access token is in bad format"}
+            content={"error": "Access token required"}
         )
 
     token = parts[1].strip()
