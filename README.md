@@ -77,8 +77,8 @@ Expected response:
 HTTP/1.1 201 OK
 ```
 
-<img src="img/signupswager.png" width="600">
-<img src="img/sgupc.png" width="600">
+<img src="img/signupswager.jpg" width="600">
+<img src="img/sgupc.jpg" width="600">
 
 ### GET `/auth/login`
 
@@ -93,8 +93,8 @@ Expected response:
 ```text
 HTTP/1.1 200 OK
 ```
-<img src="img/loginswag.png" width="600">
-<img src="img/acctok.png" width="600">
+<img src="img/loginswag.jpg" width="600">
+<img src="img/acctok.jpg" width="600">
 
 ### GET `/public/info`
 
