@@ -4,6 +4,7 @@ from supabase import create_client
 from fastapi import FastAPI,HTTPException,Header,Depends
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 load_dotenv()
 
@@ -19,6 +20,8 @@ supabase = create_client(
 )
 
 app = FastAPI()
+#security scheme for swager use
+security = HTTPBearer()
 
 #sign up body model
 class SignupReq(BaseModel):
@@ -29,39 +32,18 @@ class LoginRequest(BaseModel):
     password: str | None = None
 
 #dependency func for token 
-def get_user(authorization: str | None = Header(default=None)):
-    #if HTTP header not sent return error
-    if not authorization:
-        return JSONResponse(
-            status_code=401,
-            content={"error": "Access token not sent"}
-        )
-    #split in two parts: Bearer and everything after that
-    parts = authorization.split(" ", 1)
-    #check if auth header is in right format: 'Bearer something'
-    if len(parts) != 2 or parts[0].lower() != "bearer" or not parts[1].strip():
-        return JSONResponse(
-            status_code=401,
-            content={"error": "Access token is in bad format"}
-        )
-
-    token = parts[1].strip()
-    #get user who has this token from supabase
+def get_user(cred: HTTPAuthorizationCredentials = Depends(security)):
+    
+    token = cred.credentials
     try:
         response = supabase.auth.get_user(token)
+        return response.user
     except Exception:
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid or expired token",
-                
-            )
-    user = response.user
-    return {
-        "message": "Token is valid!",
-        "user_id": user.id,
-        "email": user.email,
-        "account-created_at":user.created_at
-    }
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired token"
+        )
+
 #--------------------------------------
 #Stage 0 ----------------
 #check supabase connection
