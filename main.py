@@ -116,7 +116,7 @@ def info():
     return { "message": "Welcome stranger! This info is public." }
 
 #protected endpoint
-@app.get("/protected/profile",description="Welcome stranger! This info is public.",status_code=200)
+@app.get("/protected/profile",description="Welcome! This is protected endpoint.",status_code=200)
 def protected_profile(user = Depends(get_user)):
     return {
         "id": user.id,
